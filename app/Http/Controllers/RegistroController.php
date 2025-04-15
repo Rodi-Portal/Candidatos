@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bolsatrabajo;
 use App\Models\BolsaTrabajoHistorialEmpleos;
+use Illuminate\Support\Facades\Log;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
