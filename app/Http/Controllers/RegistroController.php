@@ -1,36 +1,66 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Bolsatrabajo;
 use App\Models\BolsaTrabajoHistorialEmpleos;
-
-
+use Illuminate\Http\Request;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class RegistroController extends Controller
 {
-    public function mostrarFormulario($cliente, $id_usuario, $id_portal)
+    public function mostrarFormulario(Request $request)
     {
-        $civiles = collect([
-            (object) ['nombre' => 'Solter(@)'],
-            (object) ['nombre' => 'Casad(@)'],
-            (object) ['nombre' => 'Divorciad(@)'],
-            (object) ['nombre' => 'Viud(@)'],
-        ]);
-
-        $grados = collect([
-            (object) ['nombre' => 'Primaria'],
-            (object) ['nombre' => 'Secundaria'],
-            (object) ['nombre' => 'Preparatoria'],
-            (object) ['nombre' => 'Carrera Tecnica'],
-            (object) ['nombre' => 'Universidad'],
-            (object) ['nombre' => 'Maestria'],
-            (object) ['nombre' => 'Doctorado'],
-        ]);
-        $archivo = 'portal_icon.png';
-
-        return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'archivo'));
+        // Recupera el token desde la URL
+        $token = $request->query('token');
+    
+        // Verificar si el token no está presente
+        if (!$token) {
+            abort(403, 'Token no proporcionado.');
+        }
+    
+        try {
+            // Recupera las claves desde la configuración o el archivo .env
+            $privateKey = file_get_contents(config('jwt.private_key'));  // Clave privada para firmar (si usas RS256)
+            $publicKey = file_get_contents(config('jwt.public_key'));  // Clave pública para verificar (si usas RS256)
+    
+            // Verificación y decodificación del token
+            // Si usas RS256, debes pasar la clave pública para verificar el token
+            $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
+    
+            // Extraer los datos del token
+            $cliente = $decoded->NombrePortal ?? null;
+            $id_usuario = $decoded->id ?? null;
+            $id_portal = $decoded->idPortal ?? null;
+            $archivo = $decoded->logo ?? 'portal_icon.png'; // Si el logo no está en el token, se usa 'portal_icon.png'
+    
+            // Datos adicionales (ejemplo de listas predefinidas)
+            $civiles = collect([
+                (object) ['nombre' => 'Solter(@)'],
+                (object) ['nombre' => 'Casad(@)'],
+                (object) ['nombre' => 'Divorciad(@)'],
+                (object) ['nombre' => 'Viud(@)'],
+            ]);
+    
+            $grados = collect([
+                (object) ['nombre' => 'Primaria'],
+                (object) ['nombre' => 'Secundaria'],
+                (object) ['nombre' => 'Preparatoria'],
+                (object) ['nombre' => 'Carrera Tecnica'],
+                (object) ['nombre' => 'Universidad'],
+                (object) ['nombre' => 'Maestria'],
+                (object) ['nombre' => 'Doctorado'],
+            ]);
+    
+            // Retornar la vista con los datos decodificados
+            return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'archivo'));
+    
+        } catch (\Exception $e) {
+            // Si ocurre un error con el JWT (token inválido o expirado)
+            abort(401, 'Token inválido o expirado.');
+        }
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

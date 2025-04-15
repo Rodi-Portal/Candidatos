@@ -13,7 +13,7 @@ use App\Http\Controllers\RegistroController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/registro/{cliente}/{id_usuario}/{id_portal}', [RegistroController::class, 'mostrarFormulario']);
+Route::get('/registro', [RegistroController::class, 'mostrarFormulario']);
 Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
 Route::get('/logo/{filename}', function ($filename) {
     // Ruta para el entorno local

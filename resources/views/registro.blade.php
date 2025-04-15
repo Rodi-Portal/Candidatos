@@ -155,7 +155,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-users"></i></span>
                 </div>
-                <input type="text" class="form-control" id="dependientes" name="dependientes">
+                <input type="text" class="form-control" id="dependientes" name="dependientes" value="Ninguna">
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-heartbeat"></i></span>
                 </div>
-                <input type="text" class="form-control" id="salud" name="salud">
+                <input type="text" class="form-control" id="salud" name="salud" value="Saludable">
               </div>
             </div>
           </div>
@@ -213,9 +213,9 @@
               <label>¿Practica algún deporte? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="far fa-futbol"></i></span>
+                  <span class="input-group-text"><i class="fas fa-running"></i></span>
                 </div>
-                <input type="text" class="form-control" id="deporte" name="deporte">
+                <input type="text" class="form-control" id="deporte" name="deporte" value="No">
               </div>
             </div>
             <div class="col-md-4">
