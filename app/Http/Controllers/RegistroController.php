@@ -3,9 +3,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Bolsatrabajo;
 use App\Models\BolsaTrabajoHistorialEmpleos;
-use Illuminate\Http\Request;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Http\Request;
 
 class RegistroController extends Controller
 {
@@ -13,27 +13,36 @@ class RegistroController extends Controller
     {
         // Recupera el token desde la URL
         $token = $request->query('token');
-    
+        Log::info('Token recibido:', ['token' => $token]);
+
         // Verificar si el token no está presente
-        if (!$token) {
+        if (! $token) {
             abort(403, 'Token no proporcionado.');
         }
-    
+
         try {
             // Recupera las claves desde la configuración o el archivo .env
-            $privateKey = file_get_contents(config('jwt.private_key'));  // Clave privada para firmar (si usas RS256)
-            $publicKey = file_get_contents(config('jwt.public_key'));  // Clave pública para verificar (si usas RS256)
-    
+            $publicKeyPath = config('jwt.public_key');
+            if (! file_exists($publicKeyPath)) {
+                Log::error('La clave pública no existe en: ' . $publicKeyPath);
+                abort(500, 'Clave pública no encontrada.');
+            }
+
+            $publicKey = file_get_contents($publicKeyPath);
+            if (! $publicKey) {
+                Log::error('No se pudo leer la clave pública.');
+                abort(500, 'Error al leer clave pública.');
+            }
             // Verificación y decodificación del token
             // Si usas RS256, debes pasar la clave pública para verificar el token
             $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
-    
+
             // Extraer los datos del token
-            $cliente = $decoded->NombrePortal ?? null;
+            $cliente    = $decoded->NombrePortal ?? null;
             $id_usuario = $decoded->id ?? null;
-            $id_portal = $decoded->idPortal ?? null;
-            $archivo = $decoded->logo ?? 'portal_icon.png'; // Si el logo no está en el token, se usa 'portal_icon.png'
-    
+            $id_portal  = $decoded->idPortal ?? null;
+            $archivo    = $decoded->logo ?? 'portal_icon.png'; // Si el logo no está en el token, se usa 'portal_icon.png'
+
             // Datos adicionales (ejemplo de listas predefinidas)
             $civiles = collect([
                 (object) ['nombre' => 'Solter(@)'],
@@ -41,7 +50,7 @@ class RegistroController extends Controller
                 (object) ['nombre' => 'Divorciad(@)'],
                 (object) ['nombre' => 'Viud(@)'],
             ]);
-    
+
             $grados = collect([
                 (object) ['nombre' => 'Primaria'],
                 (object) ['nombre' => 'Secundaria'],
@@ -51,12 +60,14 @@ class RegistroController extends Controller
                 (object) ['nombre' => 'Maestria'],
                 (object) ['nombre' => 'Doctorado'],
             ]);
-    
+
             // Retornar la vista con los datos decodificados
             return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'archivo'));
-    
+
         } catch (\Exception $e) {
             // Si ocurre un error con el JWT (token inválido o expirado)
+            Log::error('Error al decodificar el token JWT', ['exception' => $e->getMessage()]);
+
             abort(401, 'Token inválido o expirado.');
         }
     }
