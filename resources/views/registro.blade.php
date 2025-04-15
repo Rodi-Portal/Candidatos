@@ -367,7 +367,7 @@
               </div>
             </div>
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Qué área es de tu interés? *</label>
+              <label>¿Qué área es de tu interés? *</label><br>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-question-circle"></i></span>
@@ -376,7 +376,7 @@
               </div>
             </div>
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Qué sueldo desea percibir? *</label>
+              <label>¿Qué sueldo deseas percibir? *</label><br>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-hand-holding-usd"></i></span>
@@ -387,7 +387,7 @@
           </div>
           <div class="row">
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Tienes otros ingresos? *</label>
+              <label>¿Tienes otros ingresos? *</label><br>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-hand-holding-usd"></i></span>
