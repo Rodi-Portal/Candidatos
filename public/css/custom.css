@@ -121,3 +121,8 @@ label{
 .modal-header .close{
   color: white !important;;
 }
+
+.text-center-label {
+  text-align: center;
+  display: block;
+}
