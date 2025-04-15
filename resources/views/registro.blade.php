@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
 
   <title>Registro</title>
+  <link rel="icon" href="{{ asset('favicon.jpg') }}" type="image/x-icon">
+
   <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
   @vite(['resources/css/app.scss', 'resources/js/app.js'])
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -150,7 +152,7 @@
               </div>
             </div>
             <div class="col-12 col-md-8 mb-3">
-              <label>Personas que dependan de usted *</label>
+              <label>Personas que dependan de ti *</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-users"></i></span>
@@ -190,7 +192,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <label>¿Cómo es su estado de salud actual? *</label>
+              <label>¿Cómo es tu estado de salud actual? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-heartbeat"></i></span>
@@ -201,7 +203,7 @@
           </div>
           <div class="row">
             <div class="col-md-4">
-              <label>¿Padece de alguna enfermedad crónica? *</label>
+              <label>¿Padeces alguna enfermedad crónica? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-virus"></i></span>
@@ -210,7 +212,7 @@
               </div>
             </div>
             <div class="col-md-4">
-              <label>¿Practica algún deporte? *</label>
+              <label>¿Practicas algún deporte? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-running"></i></span>
@@ -219,7 +221,7 @@
               </div>
             </div>
             <div class="col-md-4">
-              <label>¿Cuáles son sus metas en la vida? *</label>
+              <label>¿Cuáles son tus metas en la vida? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-flag-checkered"></i></span>
@@ -239,7 +241,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <label>Idiomas que domina *</label>
+              <label>Idiomas que dominas *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-language"></i></span>
@@ -250,7 +252,7 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <label>Máquinas de oficina o taller que maneje *</label>
+              <label>Máquinas de oficina o taller que manejes *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-cogs"></i></span>
@@ -261,7 +263,7 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <label>Software que conoce *</label>
+              <label>Software que conoces *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-laptop"></i></span>
@@ -282,7 +284,7 @@
           Puede agregar un segundo empleo si lo desea, pero no es obligatorio. </h5>
         <div class="card-body">
           <?php
-            for ($i = 1; $i <= 2; $i++) {?>
+          for ($i = 1; $i <= 2; $i++) {?>
           <h5 class="text-center mt-3 my-3">Empleo #<?php echo $i ?></h5>
           <div class="row">
             <div class="col-sm-12 col-md-4 col-lg-4">
@@ -365,7 +367,7 @@
               </div>
             </div>
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Qué área es de su interés? *</label>
+              <label>¿Qué área es de tu interés? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-question-circle"></i></span>
@@ -385,7 +387,7 @@
           </div>
           <div class="row">
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Tiene otros ingresos? *</label>
+              <label>¿Tienes otros ingresos? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-hand-holding-usd"></i></span>
@@ -394,7 +396,7 @@
               </div>
             </div>
             <div class="col-sm-12 col-md-4 col-lg-3">
-              <label>¿Tiene disponibilidad para viajar? *</label>
+              <label>¿Tienes disponibilidad para viajar? *</label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-plane"></i></span>
@@ -433,10 +435,10 @@
         </div>
       </div>
       <div class="alert alert-info">
-        <label class="container_checkbox">Acepto que he leído y estoy de acuerdo con el <a href="#"
-            target="_blank">aviso de privacidad</a> y manifiesto que la información aquí brindada es verídica
+        <label class="container_checkbox">
+          Confirmo que he leído y acepto el <a href="#" target="_blank">aviso de privacidad</a>, y declaro que la
+          información proporcionada es verdadera.
           <input type="checkbox" id="aviso" value="aviso">
-          <span class="checkmark"></span>
         </label>
       </div>
     </div>
