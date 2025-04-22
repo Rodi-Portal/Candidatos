@@ -34,9 +34,11 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light " id="menu">
       <a class="navbar-brand text-light" href="#">
-        <img src="{{ url('logo/'.$archivo) }}" style="width: 70px; height: 50px; margin-right: 10px; margin-left: 30px;"
+        <img src="{{ url('logo/'.$logo) }}" style="width: 70px; height: 50px; margin-right: 10px; margin-left: 30px;"
           alt="Portal Icon">
         <strong> {{ $cliente }}</strong>
+        <strong> {{ url('logo/'.$logo)  }}</strong>
+
       </a>
     </nav>
   </header>
@@ -440,7 +442,9 @@
       <div class="alert alert-info">
         <label class="text-center-label" class="container_checkbox">
         <input type="checkbox" id="aviso" value="aviso">
-          Confirmo que he leído y acepto el <a href="#" target="_blank">aviso de privacidad</a>, y declaro que la
+          Confirmo que he leído y acepto el <a href="{{ url('aviso/'.$aviso) }}" target="_blank">
+  Aviso de privacidad
+</a>, y declaro que la
           información proporcionada es verdadera.
           
         </label>

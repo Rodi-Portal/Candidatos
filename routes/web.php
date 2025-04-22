@@ -34,6 +34,33 @@ Route::get('/logo/{filename}', function ($filename) {
     // Devuelve el archivo
     return response()->file($path);
 });
+
+
+Route::get('/aviso/{filename}', function ($filename) {
+    // Validación básica (solo nombres “seguros” que terminen en .pdf)
+    if (!preg_match('/^[\w\-\s]+\.pdf$/i', $filename)) {
+        abort(403, 'Archivo no permitido');
+    }
+
+    // Elige la ruta según el entorno
+    $basePath = app()->environment('local')
+        ? env('PRIVACY_PATH_LOCAL')
+        : env('PRIVACY_PATH_PROD');
+
+    $path = $basePath . $filename;
+
+    // Verifica existencia
+    if (!file_exists($path)) {
+        abort(404, 'Aviso no encontrado');
+    }
+
+    // Fuerza visualización inline en el navegador
+    return Response::file($path, [
+        'Content-Type'        => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $filename . '"'
+    ]);
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

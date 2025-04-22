@@ -40,9 +40,13 @@ class RegistroController extends Controller
 
             // Extraer los datos del token
             $cliente    = $decoded->NombrePortal ?? null;
-            $id_usuario = $decoded->id ?? null;
+            $id_usuario = $decoded->idUsuario ?? null;
             $id_portal  = $decoded->idPortal ?? null;
-            $archivo    = $decoded->logo ?? 'portal_icon.png'; // Si el logo no está en el token, se usa 'portal_icon.png'
+            $logo    = $decoded->logo ?? 'portal_icon.png';
+            $aviso    = $decoded->aviso ?? 'AV_TL_V1.pdf';
+
+             // Si el logo no está en el token, se usa 'portal_icon.png'
+             // Si el logo no está en el token, se usa 'portal_icon.png'
 
             // Datos adicionales (ejemplo de listas predefinidas)
             $civiles = collect([
@@ -63,7 +67,7 @@ class RegistroController extends Controller
             ]);
 
             // Retornar la vista con los datos decodificados
-            return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'archivo'));
+            return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'logo', 'aviso'));
 
         } catch (\Exception $e) {
             // Si ocurre un error con el JWT (token inválido o expirado)
