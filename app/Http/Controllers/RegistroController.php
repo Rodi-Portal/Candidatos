@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Bolsatrabajo;
+use App\Models\BolsaTrabajo;
 use App\Models\BolsaTrabajoHistorialEmpleos;
 use Illuminate\Support\Facades\Log;
 use Firebase\JWT\JWT;
