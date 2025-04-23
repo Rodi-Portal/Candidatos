@@ -1,8 +1,6 @@
 function enviar() {
   const id_portal   = idPortal;   // Debe venir de tu contexto
-  console.log("🚀 ~ enviar ~ id_portal:", id_portal)
   const id_usuario  = idUsuario;
-  console.log("🚀 ~ enviar ~ id_usuario:", id_usuario)
 
   
 

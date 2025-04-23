@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RegistroController extends Controller
 {
@@ -121,12 +122,13 @@ class RegistroController extends Controller
         $existe = BolsaTrabajo::where('id_portal',        $validated['id_portal'])
         ->where('nombre',       $validated['nombre'])
         ->where('paterno',      $validated['paterno'])
+        ->where('telefono', $validated['telefono'])
         ->where('fecha_nacimiento', $validated['fecha_nacimiento'])
         ->exists();
 
         if ($existe) {
             return response()->json([
-                'message' => 'Ya existe un aspirante con el mismo nombre, apellido y fecha de nacimiento en este portal.'
+                'message' => 'Ya existe un aspirante con el mismo nombre, apellido y fecha de nacimiento en la  bolsa.'
             ], 422);
         }
 
