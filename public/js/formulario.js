@@ -332,10 +332,20 @@ function enviar() {
   })
   .then(r => r.ok ? r.json() : Promise.reject(r))
   .then(json => {
-    Swal.fire('¡Éxito!', json.message, 'success');
+    Swal.fire({
+      title: '¡Éxito!',
+      text: json.message,
+      icon: 'success',
+      timer: 5000,              // cierra el modal a los 5 s
+      timerProgressBar: true,
+      showConfirmButton: false  // quita el botón de “Aceptar”
+    }).then(() => {
+      // cuando el modal se cierra (por timer), recargamos
+      window.location.reload();
+    });
   })
   .catch(() => {
-    Swal.fire('Error','Hubo un problema al registrar.','error');
+    Swal.fire('Error', 'Hubo un problema al registrar.', 'error');
   });
 }
 

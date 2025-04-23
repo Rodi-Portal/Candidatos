@@ -118,46 +118,64 @@ class RegistroController extends Controller
             'empleos.*.telefono'         => 'required|regex:/^[0-9+\-\s]+$/',
         ]);
 
-        // ✅ Guardar en la tabla bolsa_trabajo
-        $bolsa = new BolsaTrabajo();
-        $bolsa->fill([
-            'creacion'         => now(),
-            'edicion'          => now(),
-            'id_portal'        => $validated['id_portal'],
-            'id_usuario'       => $validated['id_usuario'],
-            'nombre'           => $validated['nombre'],
-            'paterno'          => $validated['paterno'],
-            'materno'          => $validated['materno'],
-            'domicilio'        => $validated['domicilio'],
-            'fecha_nacimiento' => $validated['fecha_nacimiento'],
-            'edad'             => \Carbon\Carbon::parse($validated['fecha_nacimiento'])->age,
-            'telefono'         => $validated['telefono'],
-            'nacionalidad'     => $validated['nacionalidad'],
-            'civil'            => $validated['civil'],
-            'dependientes'     => $validated['dependientes'],
-            'grado_estudios'   => $validated['grado_estudios'],
-            'salud'            => $validated['salud'],
-            'enfermedad'       => $validated['enfermedad'],
-            'deporte'          => $validated['deporte'],
-            'metas'            => $validated['metas'],
-            'idiomas'          => $validated['idiomas'],
-            'maquinas'         => $validated['maquinas'],
-            'software'         => $validated['software'],
-            'medio_contacto'   => $validated['medio_contacto'],
-            'area_interes'     => $validated['area_interes'],
-            'sueldo_deseado'   => $validated['sueldo_deseado'],
-            'otros_ingresos'   => $validated['otros_ingresos'],
-            'viajar'           => $validated['viajar'],
-            'trabajar'         => $validated['trabajar'],
-            'comentario'       => '',
-            'status'           => 1,
-        ]);
-        $bolsa->save();
+        $existe = BolsaTrabajo::where('id_portal',        $validated['id_portal'])
+        ->where('nombre',       $validated['nombre'])
+        ->where('paterno',      $validated['paterno'])
+        ->where('fecha_nacimiento', $validated['fecha_nacimiento'])
+        ->exists();
 
-        // ✅ Guardar empleos en bolsa_trabajo_historial_empleos
-        foreach ($validated['empleos'] as $empleo) {
-            BolsaTrabajoHistorialEmpleos::create([
+        if ($existe) {
+            return response()->json([
+                'message' => 'Ya existe un aspirante con el mismo nombre, apellido y fecha de nacimiento en este portal.'
+            ], 422);
+        }
+
+        // ✅ Guardar en la tabla bolsa_trabajo
+        try {
+            DB::beginTransaction();
+    
+            $bolsa = new BolsaTrabajo();
+            $bolsa->fill([
                 'creacion'         => now(),
+                'edicion'          => now(),
+                'id_portal'        => $validated['id_portal'],
+                'id_usuario'       => $validated['id_usuario'],
+                'nombre'           => $validated['nombre'],
+                'paterno'          => $validated['paterno'],
+                'materno'          => $validated['materno'],
+                'domicilio'        => $validated['domicilio'],
+                'fecha_nacimiento' => $validated['fecha_nacimiento'],
+                'edad'             => \Carbon\Carbon::parse($validated['fecha_nacimiento'])->age,
+                'telefono'         => $validated['telefono'],
+                'nacionalidad'     => $validated['nacionalidad'],
+                'civil'            => $validated['civil'],
+                'dependientes'     => $validated['dependientes'],
+                'grado_estudios'   => $validated['grado_estudios'],
+                'salud'            => $validated['salud'],
+                'enfermedad'       => $validated['enfermedad'],
+                'deporte'          => $validated['deporte'],
+                'metas'            => $validated['metas'],
+                'idiomas'          => $validated['idiomas'],
+                'maquinas'         => $validated['maquinas'],
+                'software'         => $validated['software'],
+                'medio_contacto'   => $validated['medio_contacto'],
+                'area_interes'     => $validated['area_interes'],
+                'sueldo_deseado'   => $validated['sueldo_deseado'],
+                'otros_ingresos'   => $validated['otros_ingresos'],
+                'viajar'           => $validated['viajar'],
+                'trabajar'         => $validated['trabajar'],
+                'comentario'       => '',
+                'status'           => 1,
+            ]);
+    
+            if (! $bolsa->save()) {
+                throw new \Exception('No se pudo guardar el registro principal');
+            }
+    
+            // Guardar empleos
+            foreach ($validated['empleos'] as $empleo) {
+                $hist = BolsaTrabajoHistorialEmpleos::create([
+                   'creacion'         => now(),
                 'id_bolsa_trabajo' => $bolsa->id,
                 'empresa'          => $empleo['empresa'],
                 'periodo'          => $empleo['periodo'],
@@ -165,10 +183,36 @@ class RegistroController extends Controller
                 'sueldo'           => $empleo['sueldo'],
                 'causa_separacion' => $empleo['causa_separacion'],
                 'telefono'         => $empleo['telefono'],
-            ]);
+            
+                ]);
+    
+                if (! $hist) {
+                    throw new \Exception("No se pudo guardar empleo #{$bolsa->id}");
+                }
+            }
+    
+            DB::commit();
+    
+            // Devuelves también el ID si te interesa
+            return response()->json([
+                'message' => 'Registro exitoso. Gracias por tu interés. Por favor, mantente atento a los medios de contacto que nos proporcionaste, pues a través de ellos te contactaremos si surge alguna vacante acorde a tu perfil.',
+                'bolsa_id'  => $bolsa->id,
+            ], 201);
+    
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error de base de datos',
+                'error'   => $e->getMessage(),
+            ], 500);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error inesperado',
+                'error'   => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json(['message' => 'Registro exitoso'], 201);
     }
 
 }
