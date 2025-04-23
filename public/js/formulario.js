@@ -330,23 +330,26 @@ function enviar() {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(data)
   })
-  .then(r => r.ok ? r.json() : Promise.reject(r))
+  .then(r => r.ok
+    ? r.json() 
+    : r.json().then(errJson => Promise.reject(errJson))
+  )
   .then(json => {
     Swal.fire({
       title: '¡Éxito!',
       text: json.message,
       icon: 'success',
-      timer: 5000,              // cierra el modal a los 5 s
+      timer: 5000,
       timerProgressBar: true,
-      showConfirmButton: false  // quita el botón de “Aceptar”
-    }).then(() => {
-      // cuando el modal se cierra (por timer), recargamos
-      window.location.reload();
-    });
+      showConfirmButton: false
+    }).then(() => window.location.reload());
   })
-  .catch(() => {
-    Swal.fire('Error', 'Hubo un problema al registrar.', 'error');
+  .catch(err => {
+    // Si el back nos envió { message: '…' }
+    const msg = err.message || 'Hubo un problema al registrar.';
+    Swal.fire('Error', msg, 'error');
   });
+  
 }
 
 
