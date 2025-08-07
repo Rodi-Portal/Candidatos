@@ -44,6 +44,7 @@ class BolsaTrabajo extends Model
         'trabajar',
         'comentario',
         'status',
+        'extras',
        
     ];
 
@@ -51,6 +52,7 @@ class BolsaTrabajo extends Model
     protected $casts = [
         'creacion' => 'datetime',
         'edicion' => 'datetime',
+        'extras'   => 'array', 
     ];
 
     // Establecer las relaciones si es necesario (por ejemplo, con un modelo de Usuario)

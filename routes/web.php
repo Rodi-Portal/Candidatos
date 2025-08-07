@@ -16,6 +16,14 @@ use App\Http\Controllers\RegistroController;
 */
 Route::get('/registro', [RegistroController::class, 'mostrarFormulario']);
 Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
+
+/*Registro  formularios   Asistente Virtual  */
+Route::get('/registro-nuevo', [RegistroController::class, 'mostrarFormularioNuevo']);
+Route::post('/registro-nuevo', [RegistroController::class, 'storeNuevo'])->name('registro.storeNuevo');
+// routes/web.php
+Route::view('/registro/gracias', 'registro.gracias')->name('registro.gracias');
+
+
 Route::get('/logo/{filename}', function ($filename) {
     if (!preg_match('/^[\w\-]+\.(png|jpg|jpeg|webp)$/i', $filename)) {
         abort(403, 'Archivo no permitido');
