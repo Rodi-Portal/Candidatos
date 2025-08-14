@@ -95,7 +95,7 @@
       </div>
       <div class="mb-3">
         <label class="form-label">En caso de ser sí, describe los tiempos y días de racionamiento eléctrico.</label>
-        <input type="text" name="detalle_racionamiento" class="form-control" required>
+        <input type="text" name="detalle_racionamiento" class="form-control">
       </div>
       <div class="mb-3">
         <label class="form-label">¿Cuántas veces ha fallado el servicio eléctrico en las dos últimas semanas?</label>
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
  
   /* ①  guarda la instancia */
   const iti = window.intlTelInput(input, {
-    initialCountry: 'mx',
+    initialCountry: 've',
     nationalMode: false,
     utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@22/build/js/utils.js'
   });

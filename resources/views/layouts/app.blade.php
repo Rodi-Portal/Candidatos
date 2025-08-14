@@ -4,7 +4,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>@yield('title', 'Mi App')</title>
+<title>@yield('title', session('cliente', 'Cliente'))</title>
+<link rel="icon" href="{{ asset('favicon.jpg') }}" type="image/x-icon">
   @vite(['resources/css/app.scss', 'resources/js/app.js'])
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@22/build/css/intlTelInput.min.css">

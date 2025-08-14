@@ -5,8 +5,6 @@
   <meta charset="UTF-8">
 
   <title>Registro</title>
-  <link rel="icon" href="{{ asset('favicon.jpg') }}" type="image/x-icon">
-
   <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
   @vite(['resources/css/app.scss', 'resources/js/app.js'])
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
