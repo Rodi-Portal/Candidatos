@@ -61,8 +61,23 @@ class RequisicionController extends Controller
         $terminosToken = isset($decoded->terminos) ? basename($decoded->terminos) : null;
 
         // 5) Directorio base de PDFs
-        $base = rtrim(env('PRIVACY_PATH_LOCAL', ''), "\\/") . DIRECTORY_SEPARATOR;
-        if (empty($base) || ! is_dir($base)) {
+        $base = '';
+        foreach ([
+            env('PRIVACY_PATH_PROD'),
+            env('PRIVACY_PATH_SAND'),
+            env('PRIVACY_PATH_LOCAL'),
+        ] as $cand) {
+            if ($cand && is_dir($cand)) {
+                $base = rtrim($cand, "\\/") . DIRECTORY_SEPARATOR;
+                break;
+            }
+        }
+        if (empty($base)) {
+            \Log::error('[LV] Ninguna ruta PRIVACY_PATH_* existe', [
+                'prod'  => env('PRIVACY_PATH_PROD'),
+                'sand'  => env('PRIVACY_PATH_SAND'),
+                'local' => env('PRIVACY_PATH_LOCAL'),
+            ]);
             abort(500, 'Ruta de documentos no disponible.');
         }
 
@@ -182,7 +197,7 @@ class RequisicionController extends Controller
 
         $archivoPath = null;
 
-            // --- Manejo del archivo ---
+        // --- Manejo del archivo ---
         if ($request->hasFile('archivo')) {
             $archivo = $request->file('archivo');
 
