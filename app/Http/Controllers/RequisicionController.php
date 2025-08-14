@@ -74,8 +74,8 @@ class RequisicionController extends Controller
         }
         if (empty($base)) {
             \Log::error('[LV] Ninguna ruta PRIVACY_PATH_* existe', [
-                'prod'  => env('PRIVACY_PATH_PROD'),
-                'sand'  => env('PRIVACY_PATH_SAND'),
+                'production'  => env('PRIVACY_PATH_PROD'),
+                'sandbox'  => env('PRIVACY_PATH_SAND'),
                 'local' => env('PRIVACY_PATH_LOCAL'),
             ]);
             abort(500, 'Ruta de documentos no disponible.');
