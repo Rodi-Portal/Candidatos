@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (tel && window.intlTelInput) {
     iti = window.intlTelInput(tel, {
-      initialCountry: 'us',
+      initialCountry: 've',
       separateDialCode: false, // LADA dentro del input
       nationalMode: false,
       autoPlaceholder: 'aggressive',
