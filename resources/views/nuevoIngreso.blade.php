@@ -2,27 +2,25 @@
 @extends('layouts.appIngreso')
 
 @section('content')
-
 {{-- Barra superior (hero) --}}
-<div class="hero-bar"></div>
+<div class="hero-bar">
+  <div class="container position-relative">
+    <div class="hero-logo">
+      <img src="{{ url('logo/'.( session('logo', 'portal_icon.png') )) }}" alt="Logo Cliente">
+    </div>
+  </div>
+</div>
 
 <div class="container modern-form">
   <div class="row justify-content-center">
     <div class="col-lg-10">
       {{-- Cambiamos las clases del card --}}
       <div class="card card-modern shadow-lg">
-        <div class="card-modern-header">
-          {{-- Logo flotando (opcional) --}}
-          <div class="brand-badge" style="display: flex; align-items: center; justify-content: center; padding: 8px;">
-            <img src="{{ url('logo/'.( session('logo', 'portal_icon.png') )) }}" alt="Portal Icon"
-              style="max-width: 300px; max-height: 200px; width: auto; height: auto; object-fit: contain;">
-          </div>
-        </div>
-        <br>
-        <h1 class="title mb-2">Formulario nuevo ingreso</h1>
+
+        <br><br>
+        <h1 class="title mb-2 justify-content-center">Formulario nuevo ingreso</h1>
         <p class="subtitle mb-0">
-          Este formulario está basado en la recolección de datos personales faltantes, acuerdos de confidencialidad y
-          datos para el pago de nómina.
+          Este formulario está basado en la recolección de datos personales faltantes, acuerdos de confidencialidad y datos para el pago de nómina.
         </p>
 
 
@@ -656,6 +654,86 @@
   /* color de foco */
   --radius-xl: 20px;
 }
+/* Franja superior (hero) */
+.hero-bar {
+  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  height: 110px;                 /* alto elegante */
+  display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* Contenedor para posicionar el logo relativo al grid Bootstrap */
+.hero-bar .container {
+  position: relative;
+  height: 100%;
+}
+
+/* Logo “flotante” alineado al borde izquierdo del card */
+.hero-logo {
+  position: absolute;
+  top: 50%;
+  left: 0;                       /* ALINEADO AL IZQUIERDO DEL CONTAINER */
+  transform: translateY(-50%);
+  background: #ffffff03;              /* “tarjetita” blanca */
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  /* límites para que NO se deforme y nunca tape */
+  max-width: 250px;
+  max-height: 150px;
+  overflow: hidden;
+}
+
+.hero-logo img {
+  display: block;
+  max-height: 120px;              /* controla el alto del logo */
+  width: auto;                   /* mantiene proporción */
+  object-fit: contain;
+}
+
+/* El card “muerde” ligeramente la franja azul (look SaaS) */
+.card-modern {
+  margin-top: -36px;             /* sube el card */
+  border-radius: 20px;
+  border: 0;
+}
+
+/* Refinos del título */
+.card-modern .title {
+  color: #0a7cc7;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+/* RESPONSIVE: en móvil centramos el logo y quitamos el solape */
+@media (max-width: 576px) {
+  .hero-bar { height: 88px; }
+  .hero-logo {
+    left: 50%;
+    transform: translate(-50%, -50%);  /* centrado en móvil */
+    max-width: 180px;
+    max-height: 64px;
+    padding: 6px 12px;
+  }
+  .card-modern { margin-top: 10px; }   /* sin “mordida” en pantallas pequeñas */
+}
+
+
+/* Responsivo */
+@media (max-width: 992px){
+  .hero-bar{ height: 88px; }
+  .hero-logo{ left: 14px; height: 56px; }
+}
+
+
+
+
+
+
 
 /* Ajusta el ancho total del contenedor del input */
 .iti {
@@ -669,15 +747,11 @@
   box-sizing: border-box;
 }
 
-.hero-bar {
-  height: 140px;
-  background: var(--hero);
-  margin-bottom: 0;
-}
+
 
 .modern-form {
   /* levanta el card para que “pise” la barra */
-  margin-top: -80px;
+ 
   margin-bottom: 48px;
 }
 
@@ -693,17 +767,8 @@
   padding: 32px 32px 8px 32px;
 }
 
-.brand-badge {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
 
-.brand-badge img {
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
-}
+
 
 .title {
   font-size: clamp(24px, 4vw, 40px);
@@ -711,13 +776,15 @@
   color: #0C9DD3;
   line-height: 1.15;
   margin-left: 25px;
+   text-align: center;
   /* deja espacio para el logo */
 }
 
 .subtitle {
   color: #4b5563;
-  max-width: 68ch;
+  
   margin-left: 25px;
+   text-align: center;
 }
 
 /* Inputs con look moderno (scoped al card para no afectar todo el sitio) */
@@ -744,28 +811,9 @@
   padding: 32px 32px 8px 32px;
 }
 
-.brand-badge {
-  position: absolute;
-  top: -28px;
-  /* sobresale del borde superior */
-  left: 32px;
-  width: 70px;
-  height: 70px;
-  padding: 8px;
-  border-radius: 16px;
-  background: #ffffff05;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
-  display: grid;
-  place-items: center;
-  z-index: 5;
-  /* por si hay sombras o capas */
-}
 
-.brand-badge img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
+
+
 
 
 .card-modern .form-control:focus {
@@ -801,9 +849,7 @@
 }
 
 @media (max-width: 576px) {
-  .brand-badge {
-    left: 16px;
-  }
+  
 
   .title,
   .subtitle {
