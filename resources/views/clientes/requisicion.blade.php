@@ -588,10 +588,11 @@ document.addEventListener('DOMContentLoaded', () => {
 .hero-logo {
   position: absolute;
   top: 50%;
-  left: 0;                       /* ALINEADO AL IZQUIERDO DEL CONTAINER */
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%); /* antes: translateY(-50%) */
+  margin-top: 15px;
   background: #ffffff03;              /* “tarjetita” blanca */
-  border-radius: 12px;
+  border-radius: 50px;
   padding: 8px 14px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0);
   display: flex;
@@ -599,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
   justify-content: center;
   z-index: 100;
   /* límites para que NO se deforme y nunca tape */
-  max-width: 250px;
+
   max-height: 150px;
   overflow: hidden;
 }
