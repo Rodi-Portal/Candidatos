@@ -14,7 +14,7 @@ use App\Http\Controllers\RegistroController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
+Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store1');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
