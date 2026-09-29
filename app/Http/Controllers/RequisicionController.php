@@ -159,9 +159,11 @@ class RequisicionController extends Controller
                 ->withInput();
         }
 
-        // --- Manejo del archivo ---
-        $archivoPath   = null;
+        // --- Preparar archivo ---
+        // Se valida aquí, pero se mueve después de crear la requisición.
+        $archivo       = null;
         $nombreArchivo = null;
+        $archivoFisico = null;
 
         if ($request->hasFile('archivo')) {
             $archivo = $request->file('archivo');
@@ -171,48 +173,36 @@ class RequisicionController extends Controller
                 'size'          => $archivo->getSize(),
                 'mime'          => $archivo->getClientMimeType(),
                 'is_valid'      => $archivo->isValid(),
-                'error_code'    => $archivo->getError(), // 0 si OK
+                'error_code'    => $archivo->getError(),
             ]);
 
             if (! $archivo->isValid()) {
-                Log::error('❌ Archivo inválido', ['error_code' => $archivo->getError()]);
-            } else {
-                                             // Detecta entorno real
-                $env = app()->environment(); // 'production', 'local', etc.
-                if (app()->environment('production')) {
-                    $destino = env('REQ_PATH_PROD');
-                } elseif ($env === 'sand' || app()->environment('sandbox')) {
-                    $destino = env('REQ_PATH_SAND');
-                } else {
-                    $destino = env('REQ_PATH_LOCAL');
-                }
-                Log::info('🟢 [store] usando carpeta destino', ['env' => $env, 'destino' => $destino]);
+                Log::error('❌ Archivo inválido', [
+                    'error_code' => $archivo->getError(),
+                ]);
 
-                if (! is_dir($destino)) {
-                    Log::error('❌ Carpeta destino no existe', ['destino' => $destino]);
-                } elseif (! is_writable($destino)) {
-                    Log::error('❌ Carpeta destino sin permisos de escritura', ['destino' => $destino]);
-                }
-
-                $destino       = rtrim($destino, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-                $nombreArchivo = time() . '_' . $idPortal . '_' . $archivo->getClientOriginalName();
-
-                try {
-                    $archivo->move($destino, $nombreArchivo);
-                    $full = $destino . $nombreArchivo;
-
-                    if (file_exists($full)) {
-                        $archivoPath = $full;
-                        Log::info('✅ Archivo guardado', ['path' => $archivoPath]);
-                    } else {
-                        Log::error('❌ Archivo NO guardado post-move', ['path' => $full]);
-                    }
-                } catch (\Throwable $e) {
-                    Log::error('❌ Error al mover archivo', ['msg' => $e->getMessage(), 'line' => $e->getLine()]);
-                }
+                return redirect()
+                    ->to(route('solicitudes.create', [
+                        'token' => $returnToken,
+                    ]))
+                    ->withErrors('El archivo adjunto no es válido.')
+                    ->withInput();
             }
-        }
 
+            $original = basename(
+                str_replace(
+                    '\\',
+                    '/',
+                    $archivo->getClientOriginalName()
+                )
+            );
+
+            $nombreArchivo = time()
+                . '_'
+                . $idPortal
+                . '_'
+                . $original;
+        }
         // Extras JSON
         $known   = array_keys($rules);
         $known[] = '_token';
@@ -256,7 +246,7 @@ class RequisicionController extends Controller
                 'fecha_inicio'        => $request->input('fecha_inicio'),
                 'observaciones'       => $request->input('observaciones'),
                 // Guarda NOMBRE físico (recomendado). Si prefieres ruta, usa $archivoPath
-                'archivo_path'        => $nombreArchivo,
+                'archivo_path'        => null,
                 'acepta_terminos'     => $request->boolean('acepta_terminos'),
                 'terminos_file'       => $request->input('terminos_file', session('terminos_file')),
                 'terminos_hash'       => $request->input('terminos_hash', session('terminos_hash')),
@@ -284,6 +274,101 @@ class RequisicionController extends Controller
                 'id_intake'          => $intake->id,
             ]);
 
+            /*
+             * Guardar documento en TalentSafe.
+             *
+             * BD:
+             *   archivo_path = solo filename.
+             *
+             * Físico:
+             *   portales/{portal}/clientes/{cliente}/
+             *   requisiciones/{req}/documentos/{archivo}
+             */
+            if ($archivo !== null && $nombreArchivo !== null) {
+                if ($idCliente <= 0) {
+                    throw new \RuntimeException(
+                        'No se pudo identificar el cliente de la requisición.'
+                    );
+                }
+
+                $storageRoot = config('paths.talentsafe_storage');
+
+                if (
+                    ! is_string($storageRoot)
+                    || trim($storageRoot) === ''
+                ) {
+                    throw new \RuntimeException(
+                        'TALENTSAFE_STORAGE_PATH no está configurado.'
+                    );
+                }
+
+                $storageRoot = rtrim(
+                    str_replace('\\', '/', $storageRoot),
+                    '/'
+                );
+
+                $destino = $storageRoot
+                    . '/portales/'
+                    . $idPortal
+                    . '/clientes/'
+                    . $idCliente
+                    . '/requisiciones/'
+                    . $req->id
+                    . '/documentos';
+
+                if (
+                    ! is_dir($destino)
+                    && ! mkdir($destino, 0775, true)
+                    && ! is_dir($destino)
+                ) {
+                    throw new \RuntimeException(
+                        'No se pudo crear directorio: '
+                        . $destino
+                    );
+                }
+
+                if (! is_writable($destino)) {
+                    throw new \RuntimeException(
+                        'Directorio sin permisos de escritura: '
+                        . $destino
+                    );
+                }
+
+                Log::info('🟢 [store] destino TalentSafe', [
+                    'portal'      => $idPortal,
+                    'cliente'     => $idCliente,
+                    'requisicion' => $req->id,
+                    'destino'     => $destino,
+                ]);
+
+                $archivo->move(
+                    $destino,
+                    $nombreArchivo
+                );
+
+                $archivoFisico = $destino
+                    . '/'
+                    . $nombreArchivo;
+
+                if (! is_file($archivoFisico)) {
+                    throw new \RuntimeException(
+                        'Archivo no encontrado después del move: '
+                        . $archivoFisico
+                    );
+                }
+
+                /*
+                 * Solamente filename en BD.
+                 */
+                $intake->archivo_path = $nombreArchivo;
+                $intake->edicion      = now();
+                $intake->save();
+
+                Log::info('✅ Archivo de requisición guardado', [
+                    'path' => $archivoFisico,
+                    'name' => $nombreArchivo,
+                ]);
+            }
             DB::commit();
             Log::info('✅ guardado OK', ['id_intake' => $intake->id, 'req_id' => $req->id]);
 
@@ -292,6 +377,15 @@ class RequisicionController extends Controller
                 ->with('mensaje', 'Su vacante se registró exitosamente. Regrese al apartado de requisiciones para dar seguimiento.');
         } catch (\Throwable $e) {
             DB::rollBack();
+            /*
+             * El filesystem no participa en la transacción SQL.
+             */
+            if (
+                ! empty($archivoFisico)
+                && is_file($archivoFisico)
+            ) {
+                @unlink($archivoFisico);
+            }
             Log::error('❌ store error', ['msg' => $e->getMessage(), 'line' => $e->getLine()]);
             return redirect()
                 ->to(route('solicitudes.create', ['token' => $returnToken]))
