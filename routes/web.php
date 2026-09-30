@@ -75,7 +75,7 @@ Route::get('/logo/{filename}', function ($filename) {
      * Si el portal no tiene logo configurado o el archivo no existe,
      * usar el logo predeterminado.
      */
-    $pathDefault = $root . '/default/logo/logo_nuevo1.png';
+    $pathDefault = $root . '/default/logo/logo_nuevo.png';
 
     if (! is_file($pathDefault)) {
         abort(404, 'Logo no encontrado');
