@@ -45,17 +45,43 @@ Route::get('/logo/{filename}', function ($filename) {
         '/'
     );
 
-    $path = $root
-        . '/portales/'
-        . $idPortal
-        . '/configuracion/logo/'
-        . basename($filename);
+    /*
+     * El nombre recibido en la URL puede provenir de un token anterior.
+     * La fuente actual del logo es portal.logo.
+     */
+    $portal = \Illuminate\Support\Facades\DB::table('portal')
+        ->select('logo')
+        ->where('id', $idPortal)
+        ->first();
 
-    if (! is_file($path)) {
+    $logo = trim((string) ($portal->logo ?? ''));
+
+    if (
+        $logo !== ''
+        && preg_match('/^[\w\-]+\.(png|jpg|jpeg|webp)$/i', $logo)
+    ) {
+        $pathPortal = $root
+            . '/portales/'
+            . $idPortal
+            . '/configuracion/logo/'
+            . basename($logo);
+
+        if (is_file($pathPortal)) {
+            return response()->file($pathPortal);
+        }
+    }
+
+    /*
+     * Si el portal no tiene logo configurado o el archivo no existe,
+     * usar el logo predeterminado.
+     */
+    $pathDefault = $root . '/default/logo/logo_nuevo1.png';
+
+    if (! is_file($pathDefault)) {
         abort(404, 'Logo no encontrado');
     }
 
-    return response()->file($path);
+    return response()->file($pathDefault);
 });
 
 
