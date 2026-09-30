@@ -231,8 +231,10 @@ function enviar() {
     }
   }
 
-  // 12) empleos: array + validaciones de cada objeto
+  // 12) empleos: el empleo #1 es obligatorio.
+  // El empleo #2 solo se valida si el usuario captura algún dato.
   const empleos = [];
+
   for (let i = 1; i <= 2; i++) {
     const empresa   = document.getElementById(`empresa${i}`).value.trim();
     const periodo   = document.getElementById(`periodo${i}`).value.trim();
@@ -242,39 +244,67 @@ function enviar() {
     const telEmpleo = document.getElementById(`telefono_empleo${i}`).value.trim();
 
     const alguno = empresa || periodo || puesto || sueldo || causa || telEmpleo;
+    const debeValidarse = i === 1 || Boolean(alguno);
 
-    if (i === 1 && !alguno) {
-      errores.push('Todos los campos del Empleo #1 son obligatorios.');
-      if (!primerErrorEnfocado) {
-        document.getElementById(`empresa${i}`).focus();
-        primerErrorEnfocado = true;
-      }
+    if (!debeValidarse) {
+      continue;
     }
 
-    if (alguno) {
-      // telefono
-      if (!telefonoRegex.test(telEmpleo)) {
-        errores.push(`Teléfono del empleo #${i} inválido.`);
+    let empleoValido = true;
+
+    const camposRequeridos = [
+      { valor: empresa,   id: `empresa${i}`,            mensaje: `Empresa del empleo #${i} requerida.` },
+      { valor: periodo,   id: `periodo${i}`,            mensaje: `Periodo del empleo #${i} requerido.` },
+      { valor: puesto,    id: `puesto${i}`,             mensaje: `Puesto del empleo #${i} requerido.` },
+      { valor: sueldo,    id: `sueldo${i}`,             mensaje: `Sueldo del empleo #${i} requerido.` },
+      { valor: causa,     id: `causa_separacion${i}`,   mensaje: `Causa de separación del empleo #${i} requerida.` },
+      { valor: telEmpleo, id: `telefono_empleo${i}`,    mensaje: `Teléfono del empleo #${i} requerido.` }
+    ];
+
+    camposRequeridos.forEach(campo => {
+      if (!campo.valor) {
+        errores.push(campo.mensaje);
+        empleoValido = false;
+
         if (!primerErrorEnfocado) {
-          document.getElementById(`telefono_empleo${i}`).focus();
+          document.getElementById(campo.id).focus();
           primerErrorEnfocado = true;
         }
       }
-      // sueldo: numeric|min:0
-      const su = parseFloat(sueldo);
-      if (isNaN(su) || su < 0) {
+    });
+
+    let sueldoNumerico = null;
+
+    if (sueldo) {
+      sueldoNumerico = parseFloat(sueldo);
+
+      if (isNaN(sueldoNumerico) || sueldoNumerico < 0) {
         errores.push(`Sueldo del empleo #${i} inválido.`);
+        empleoValido = false;
+
         if (!primerErrorEnfocado) {
           document.getElementById(`sueldo${i}`).focus();
           primerErrorEnfocado = true;
         }
       }
+    }
 
+    if (telEmpleo && !telefonoRegex.test(telEmpleo)) {
+      errores.push(`Teléfono del empleo #${i} inválido.`);
+      empleoValido = false;
+
+      if (!primerErrorEnfocado) {
+        document.getElementById(`telefono_empleo${i}`).focus();
+        primerErrorEnfocado = true;
+      }
+    }
+
+    if (empleoValido) {
       empleos.push({
         empresa,
         periodo,
         puesto,
-        sueldo: su,
+        sueldo: sueldoNumerico,
         causa_separacion: causa,
         telefono: telEmpleo
       });
@@ -325,7 +355,10 @@ function enviar() {
 
   fetch('/api/registro', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
     body: JSON.stringify(data)
   })
   .then(r => r.ok
