@@ -34,50 +34,77 @@ Route::get('/logo/{filename}', function ($filename) {
         abort(403, 'Archivo no permitido');
     }
 
-    $base = config('paths.logo');
-    $path = $base . $filename;
+    $idPortal = (int) session('id_portal');
 
-    if (! file_exists($path)) {
+    if ($idPortal <= 0) {
+        abort(403, 'Portal no identificado');
+    }
+
+    $root = rtrim(
+        str_replace('\\', '/', (string) config('paths.storage_root')),
+        '/'
+    );
+
+    $path = $root
+        . '/portales/'
+        . $idPortal
+        . '/configuracion/logo/'
+        . basename($filename);
+
+    if (! is_file($path)) {
         abort(404, 'Logo no encontrado');
     }
 
     return response()->file($path);
 });
 
+
 Route::get('/aviso/{filename}', function ($filename) {
     if (! preg_match('/^[\w\-\s]+\.pdf$/i', $filename)) {
         abort(403, 'Archivo no permitido');
     }
 
-    $base = config('paths.privacy');
-    $path = $base . $filename;
+    $root = rtrim(
+        str_replace('\\', '/', (string) config('paths.storage_root')),
+        '/'
+    );
 
-    if (! file_exists($path)) {
+    $path = $root
+        . '/default/documentos/'
+        . basename($filename);
+
+    if (! is_file($path)) {
         abort(404, 'Aviso no encontrado');
     }
 
     return Response::file($path, [
         'Content-Type'        => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        'Content-Disposition' => 'inline; filename="' . basename($filename) . '"',
     ]);
 });
+
 
 Route::get('/terminos/{filename}', function ($filename) {
     if (! preg_match('/^[\w\-\s]+\.pdf$/i', $filename)) {
         abort(403, 'Archivo no permitido');
     }
 
-    $base = config('paths.privacy');
-    $path = $base . $filename;
+    $root = rtrim(
+        str_replace('\\', '/', (string) config('paths.storage_root')),
+        '/'
+    );
 
-    if (! file_exists($path)) {
-        dd("No se encontró el archivo: $path");
+    $path = $root
+        . '/default/documentos/'
+        . basename($filename);
+
+    if (! is_file($path)) {
         abort(404, 'Términos no encontrados');
     }
 
     return Response::file($path, [
         'Content-Type'        => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        'Content-Disposition' => 'inline; filename="' . basename($filename) . '"',
     ]);
 });
 

@@ -17,12 +17,6 @@ class RequisicionController extends Controller
     {
         $rawToken = $request->query('token');
         \Log::info('[LV] token sha', ['sha' => $rawToken ? substr(hash('sha256', $rawToken), 0, 16) : null]);
-
-        // payload crudo sin verificar
-        [$h, $p, $s] = explode('.', $rawToken);
-        $pl          = json_decode(base64_decode(strtr($p, '-_', '+/')), true);
-        \Log::info('[LV] raw payload', ['idCliente' => $pl['idCliente'] ?? null, 'jti' => $pl['jti'] ?? null]);
-
         // 1) Token obligatorio
         $rawToken = $request->query('token');
         if (! $rawToken) {
@@ -60,27 +54,29 @@ class RequisicionController extends Controller
         $avisoToken    = isset($decoded->aviso) ? basename($decoded->aviso) : null;
         $terminosToken = isset($decoded->terminos) ? basename($decoded->terminos) : null;
 
-        // 5) Directorio base de PDFs
-        $base = '';
-        foreach ([
-            env('PRIVACY_PATH_PROD'),
-            env('PRIVACY_PATH_SAND'),
-            env('PRIVACY_PATH_LOCAL'),
-        ] as $cand) {
-            if ($cand && is_dir($cand)) {
-                $base = rtrim($cand, "\\/") . DIRECTORY_SEPARATOR;
-                break;
-            }
-        }
-        if (empty($base)) {
-            \Log::error('[LV] Ninguna ruta PRIVACY_PATH_* existe', [
-                'prod'  => env('PRIVACY_PATH_PROD'),
-                'sand'  => env('PRIVACY_PATH_SAND'),
-                'local' => env('PRIVACY_PATH_LOCAL'),
-            ]);
-            abort(500, 'Ruta de documentos no disponible.');
+        // 5) Directorio de documentos legales dentro de TalentSafe
+        $storageRoot = config('paths.storage_root');
+
+        if (! is_string($storageRoot) || trim($storageRoot) === '') {
+            throw new \RuntimeException(
+                'TALENTSAFE_STORAGE_PATH no está configurado.'
+            );
         }
 
+        $storageRoot = rtrim(
+            str_replace('\\', '/', $storageRoot),
+            '/'
+        );
+
+        $base = $storageRoot . '/default/documentos/';
+
+        if (! is_dir($base)) {
+            \Log::error('[LV] Directorio legal de TalentSafe no existe', [
+                'path' => $base,
+            ]);
+
+            abort(500, 'Ruta de documentos no disponible.');
+        }
         // 6) Resolver archivos (preferir los del token; si no, defaults)
         $AVISO_DEFAULT    = 'AV_TL_V1.pdf';
         $TERMINOS_DEFAULT = 'TM_TL_V1.pdf';
@@ -113,6 +109,7 @@ class RequisicionController extends Controller
             'terminos_hash'    => $terminosHash,
             'logo'             => $logo,
             'cliente'          => $cliente,
+            'id_portal'        => $id_portal,
             'id_portal_token'  => $id_portal,
             'id_usuario_token' => $id_usuario,
             'id_cliente_token' => $idCliente,
@@ -291,7 +288,7 @@ class RequisicionController extends Controller
                     );
                 }
 
-                $storageRoot = config('paths.talentsafe_storage');
+                $storageRoot = config('paths.storage_root');
 
                 if (
                     ! is_string($storageRoot)

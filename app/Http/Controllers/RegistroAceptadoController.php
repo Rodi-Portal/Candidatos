@@ -207,8 +207,59 @@ class RegistroAceptadoController extends Controller
         $validated = $request->validate($rules, $messages);
 
         // ===== RUTA FÍSICA DE DESTINO =====
-        $docsRoot = $this->resolveDocsRoot();
-        $destBase = rtrim($docsRoot, '/\\') . DIRECTORY_SEPARATOR;
+        // El id_cliente real se obtiene del empleado; nunca se asume
+        // que id_portal e id_cliente sean equivalentes.
+        $empleadoStorage = \DB::table('empleados')
+            ->select('id_cliente', 'id_portal')
+            ->where('id', (int) $idEmpleado)
+            ->first();
+
+        if (! $empleadoStorage) {
+            return back()
+                ->withErrors(['general' => 'No se encontró el empleado asociado al enlace.'])
+                ->withInput();
+        }
+
+        if ((int) $empleadoStorage->id_portal !== (int) $idPortal) {
+            \Log::warning('⚠️ [NuevoIngreso] portal no corresponde al empleado', [
+                'id_empleado'     => (int) $idEmpleado,
+                'portal_token'    => (int) $idPortal,
+                'portal_empleado' => (int) $empleadoStorage->id_portal,
+            ]);
+
+            return back()
+                ->withErrors(['general' => 'El empleado no corresponde al portal indicado.'])
+                ->withInput();
+        }
+
+        $idCliente = (int) $empleadoStorage->id_cliente;
+
+        if (! $idCliente) {
+            return back()
+                ->withErrors(['general' => 'El empleado no tiene cliente asociado.'])
+                ->withInput();
+        }
+
+        $docsRoot = (string) config('paths.storage_root');
+
+        if ($docsRoot === '') {
+            \Log::error('❌ [NuevoIngreso] TALENTSAFE_STORAGE_PATH no configurado');
+
+            return back()
+                ->withErrors(['general' => 'La ruta de almacenamiento no está configurada.'])
+                ->withInput();
+        }
+
+        $relativeDir = sprintf(
+            'portales/%d/_documentEmpleado/clientes/%d/empleados/%d',
+            (int) $idPortal,
+            $idCliente,
+            (int) $idEmpleado
+        );
+
+        $destBase = rtrim($docsRoot, '/\\')
+            . DIRECTORY_SEPARATOR
+            . str_replace('/', DIRECTORY_SEPARATOR, $relativeDir);
 
         \Log::info('🟢 [NuevoIngreso] destino docs', [
             'env'          => app()->environment(),
@@ -252,7 +303,7 @@ class RegistroAceptadoController extends Controller
         ];
 
         try {
-            \DB::transaction(function () use ($request, $validated, $extrasTexto, $destBase, $labelByKey, $idEmpleado) {
+            \DB::transaction(function () use ($request, $validated, $extrasTexto, $destBase, $relativeDir, $labelByKey, $idEmpleado) {
                 // 1) Guardar EXTRAS (texto)
                 foreach ($extrasTexto as $campo) {
                     $valor = $validated[$campo] ?? $request->input($campo);
@@ -287,7 +338,7 @@ class RegistroAceptadoController extends Controller
 
                     \App\Models\DocumentEmpleado::create([
                         'employee_id'     => $idEmpleado,
-                        'name'            => $finalName, // nombre físico con extensión
+                        'name'            => str_replace('\\', '/', $relativeDir . '/' . $finalName), // ruta relativa en storagetalentsafe
                         'id_opcion'       => null,
                         'expiry_date'     => null,
                         'expiry_reminder' => null,
@@ -317,30 +368,6 @@ class RegistroAceptadoController extends Controller
 
       return response()->view('registro.graciasCandidato'); 
 
-    }
-
-/**
- * Determina la raíz donde se guardarán los documentos según el entorno.
- * Usa tus .env:
- *  DOC_PATH_LOCAL, DOC_PATH_PROD, DOC_PATH_SAND
- */
-    private function resolveDocsRoot(): string
-    {
-        $env = app()->environment(); // 'local', 'production', etc.
-
-        if ($env === 'local') {
-            $root = env('DOC_PATH_LOCAL');
-        } elseif ($env === 'production') {
-            $root = env('DOC_PATH_PROD');
-        } else {
-            $root = env('DOC_PATH_SAND', env('DOC_PATH_PROD'));
-        }
-
-        if (! $root) {
-            $root = storage_path('app/empleado_docs_fallback');
-        }
-
-        return rtrim($root, "/\\") . DIRECTORY_SEPARATOR;
     }
 
     private function revokeCurrentLink(int $idEmpleado): bool

@@ -67,8 +67,9 @@ class RegistroController extends Controller
                 (object) ['nombre' => 'Doctorado'],
             ]);
             session([
-                'logo'    => $logo,
-                'cliente' => $cliente,
+                'logo'      => $logo,
+                'cliente'   => $cliente,
+                'id_portal' => $id_portal,
             ]);
             // Retornar la vista con los datos decodificados
             return view('registro', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'logo', 'aviso'));
@@ -137,8 +138,9 @@ class RegistroController extends Controller
                 (object) ['nombre' => 'Doctorado'],
             ]);
             session([
-                'logo'    => $logo,
-                'cliente' => $cliente,
+                'logo'      => $logo,
+                'cliente'   => $cliente,
+                'id_portal' => $id_portal,
             ]);
             // Retornar la vista con los datos decodificados
             return view('registroNuevo', compact('cliente', 'id_usuario', 'id_portal', 'civiles', 'grados', 'logo', 'aviso'));
