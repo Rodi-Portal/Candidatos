@@ -67,7 +67,11 @@ Route::get('/logo/{filename}', function ($filename) {
             . basename($logo);
 
         if (is_file($pathPortal)) {
-            return response()->file($pathPortal);
+            return response()->file($pathPortal, [
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma'        => 'no-cache',
+                'Expires'       => '0',
+            ]);
         }
     }
 
@@ -81,7 +85,11 @@ Route::get('/logo/{filename}', function ($filename) {
         abort(404, 'Logo no encontrado');
     }
 
-    return response()->file($pathDefault);
+    return response()->file($pathDefault, [
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma'        => 'no-cache',
+        'Expires'       => '0',
+    ]);
 });
 
 

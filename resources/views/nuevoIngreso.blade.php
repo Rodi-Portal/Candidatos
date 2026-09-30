@@ -6,7 +6,7 @@
 <div class="hero-bar">
   <div class="container position-relative">
     <div class="hero-logo">
-      <img src="{{ url('logo/'.( session('logo', 'portal_icon.png') )) }}" alt="Logo Cliente">
+      <img src="{{ url('logo/actual.png') }}" alt="Logo Cliente">
     </div>
   </div>
 </div>

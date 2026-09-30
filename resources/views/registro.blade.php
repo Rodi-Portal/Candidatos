@@ -32,7 +32,7 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light " id="menu">
       <a class="navbar-brand text-light" href="#">
-        <img src="{{ url('logo/'.$logo) }}" style="width: 70px; height: 50px; margin-right: 10px; margin-left: 30px;"
+        <img src="{{ url('logo/actual.png') }}" style="width: 70px; height: 50px; margin-right: 10px; margin-left: 30px;"
           alt="Portal Icon">
         <strong> {{ $cliente }}</strong>
         
