@@ -109,7 +109,7 @@ return [
     |
     */
 
-    'faker_locale'    => 'en_US',     
+    'faker_locale'    => 'en_US',
 
     /*
     |--------------------------------------------------------------------------
@@ -156,9 +156,9 @@ return [
     */
 
     'providers'       => ServiceProvider::defaultProviders()->merge([
-        /*    
+        /*
          * Package Service Providers...
-         */  
+         */
 
         /*
          * Application Service Providers...
