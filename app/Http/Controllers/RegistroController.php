@@ -15,7 +15,6 @@ class RegistroController extends Controller
     {
         // Recupera el token desde la URL
         $token = $request->query('token');
-        Log::info('Token recibido:', ['token' => $token]);
 
         // Verificar si el token no está presente
         if (! $token) {
@@ -86,7 +85,6 @@ class RegistroController extends Controller
     {
         // Recupera el token desde la URL
         $token = $request->query('token');
-        Log::info('Token recibido:', ['token' => $token]);
 
         // Verificar si el token no está presente
         if (! $token) {
